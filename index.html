@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Easy Epoxy Calculator — Free Resin & Floor Volume Estimator</title>
+  <meta name="description" content="Calculate epoxy resin volume for river tables, tabletops, and garage floors. Live US gallons, liters, and weight estimates. Imperial or metric, mix ratios, optional 10% waste factor, and an essential supply checklist." />
+  <meta name="keywords" content="epoxy calculator, epoxy resin estimator, floor epoxy volume, deep pour epoxy, tabletop epoxy, resin gallons, epoxy liters, mixing ratio" />
+  <meta name="author" content="Easy Epoxy Calculator" />
+  <meta name="robots" content="index, follow" />
+  <meta name="theme-color" content="#fafafa" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)" />
+  <link rel="canonical" href="https://example.com/easy-epoxy-calculator" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Easy Epoxy Calculator — Resin & Floor Volume Estimator" />
+  <meta property="og:description" content="Free tool to estimate epoxy volume (gallons, liters, kg) for pours and coatings. Optional waste buffer, mix ratios, and supply checklist." />
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:url" content="https://example.com/easy-epoxy-calculator" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Easy Epoxy Calculator" />
+  <meta name="twitter:description" content="Estimate epoxy resin volume for tables and floors. Imperial or metric, instant results." />
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Easy Epoxy Calculator",
+      "description": "Free epoxy resin and floor volume calculator with imperial and metric units, mix ratio hints, optional 10% waste factor, and supply checklist.",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "Any",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+    }
+  </script>
+  <script>
+    (function () {
+      try {
+        if (localStorage.getItem('eec-theme') === 'dark') document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'Segoe UI', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            surface: '#fafafa',
+            ink: '#1d1d1f',
+            muted: '#86868b',
+            line: '#d2d2d7',
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    [x-cloak] { display: none !important; }
+  </style>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
+  <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+</head>
+<body class="min-h-screen bg-surface text-ink antialiased transition-colors duration-200 dark:bg-zinc-950 dark:text-zinc-100">
+  <div
+    x-data="epoxyEstimator()"
+    class="min-h-screen flex flex-col"
+  >
+    <!-- Header -->
+    <header class="border-b border-line/80 bg-white/80 backdrop-blur-xl sticky top-0 z-20 dark:bg-zinc-950/85 dark:border-zinc-800/80">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-4">
+        <div class="flex items-center gap-3 min-w-0">
+          <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-zinc-100 to-zinc-200 shadow-sm border border-line/60 dark:from-zinc-800 dark:to-zinc-900 dark:border-zinc-700">
+            <i data-lucide="layers" class="w-5 h-5 text-zinc-700 dark:text-zinc-200"></i>
+          </span>
+          <div class="min-w-0">
+            <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-ink dark:text-white">
+              Easy Epoxy Calculator
+            </h1>
+            <p class="text-xs text-muted dark:text-zinc-400 hidden sm:block mt-0.5">Volume estimates for pours, coats & floors</p>
+          </div>
+        </div>
+        <div class="shrink-0">
+          <button
+            type="button"
+            @click="toggleDark()"
+            class="flex h-10 w-10 items-center justify-center rounded-full border border-line/80 bg-white text-zinc-700 hover:bg-zinc-50 transition-colors dark:bg-zinc-900 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-800"
+            :aria-label="darkMode ? 'Switch to light mode' : 'Switch to dark mode'"
+          >
+            <i class="w-[18px] h-[18px]" :data-lucide="darkMode ? 'sun' : 'moon'"></i>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-10">
+      <div class="grid lg:grid-cols-12 gap-8 lg:gap-10">
+        <!-- Left: Inputs -->
+        <section class="lg:col-span-5 space-y-6">
+          <div class="rounded-3xl bg-white border border-line/70 shadow-sm p-6 sm:p-7 space-y-6 dark:bg-zinc-900 dark:border-zinc-800">
+            <div class="flex items-center justify-between gap-3">
+              <h2 class="text-sm font-semibold tracking-tight flex items-center gap-2 dark:text-zinc-100">
+                <i data-lucide="sliders-horizontal" class="w-4 h-4 text-muted dark:text-zinc-500"></i>
+                Project
+              </h2>
+              <div class="flex rounded-full bg-zinc-100 p-0.5 border border-line/80 dark:bg-zinc-800 dark:border-zinc-700">
+                <button
+                  type="button"
+                  @click="unitSystem = 'imperial'"
+                  :class="unitSystem === 'imperial' ? 'bg-white shadow-sm text-ink dark:bg-zinc-950 dark:text-white dark:shadow-none' : 'text-muted dark:text-zinc-400'"
+                  class="px-3 py-1 text-xs font-medium rounded-full transition-all"
+                >Imperial</button>
+                <button
+                  type="button"
+                  @click="unitSystem = 'metric'"
+                  :class="unitSystem === 'metric' ? 'bg-white shadow-sm text-ink dark:bg-zinc-950 dark:text-white dark:shadow-none' : 'text-muted dark:text-zinc-400'"
+                  class="px-3 py-1 text-xs font-medium rounded-full transition-all"
+                >Metric</button>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-medium text-muted dark:text-zinc-400 mb-2">Project type</label>
+              <div class="space-y-2">
+                <template x-for="opt in projectTypes" :key="opt.id">
+                  <label
+                    class="flex items-start gap-3 p-3 rounded-2xl border cursor-pointer transition-all"
+                    :class="projectType === opt.id ? 'border-zinc-900/20 bg-zinc-50 ring-1 ring-zinc-900/10 dark:border-zinc-500/40 dark:bg-zinc-800/80 dark:ring-zinc-500/20' : 'border-line hover:border-zinc-300 dark:border-zinc-700 dark:hover:border-zinc-600'"
+                  >
+                    <input type="radio" name="ptype" class="mt-1" :value="opt.id" x-model="projectType" @change="applyProjectDefaults()" />
+                    <div class="min-w-0">
+                      <div class="text-sm font-medium" x-text="opt.label"></div>
+                      <div class="text-xs text-muted dark:text-zinc-400 mt-0.5" x-text="opt.hint"></div>
+                    </div>
+                  </label>
+                </template>
+              </div>
+            </div>
+
+            <!-- Imperial dimensions -->
+            <div x-show="unitSystem === 'imperial'" x-cloak class="space-y-4">
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-medium text-muted dark:text-zinc-400 mb-1.5">Length</label>
+                  <div class="flex gap-2">
+                    <div class="flex-1">
+                      <input type="number" min="0" step="1" x-model.number="lenFt" class="w-full rounded-xl border border-line bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900/10 focus:border-zinc-400 dark:bg-zinc-950 dark:border-zinc-700 dark:text-zinc-100 dark:focus:ring-white/10 dark:focus:border-zinc-500" placeholder="ft" />
+                      <span class="text-[10px] text-muted dark:text-zinc-500 mt-0.5 block">feet</span>
+                    </div>
+                    <div class="w-20">
+                      <input type="number" min="0" max="11.99" step="0.25" x-model.number="lenIn" class="w-full rounded-xl border border-line bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900/10 focus:border-zinc-400 dark:bg-zinc-950 dark:border-zinc-700 dark:text-zinc-100 dark:focus:ring-white/10 dark:focus:border-zinc-500" placeholder="in" />
+                      <span class="text-[10px] text-muted dark:text-zinc-500 mt-0.5 block">in</span>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-muted dark:text-zinc-400 mb-1.5">Width</label>
+                  <div class="flex gap-2">
+                    <div class="flex-1">
+                      <input type="number" min="0" step="1" x-model.number="widFt" class="w-full rounded-xl border border-line bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900/10 focus:border-zinc-400 dark:bg-zinc-950 dark:border-zinc-700 dark:text-zinc-100 dark:focus:ring-white/10 dark:focus:border-zinc-500" placeholder="ft" />
+                      <span class="text-[10px] text-muted dark:text-zinc-500 mt-0.5 block">feet</span>
+                    </div>
+                    <div class="w-20">
+                      <input type="number" min="0" max="11.99" step="0.25" x-model.number="widIn" class="w-full rounded-xl border border-line bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900/10 focus:border-zinc-400 dark:bg-zinc-950 dark:border-zinc-700 dark:text-zinc-100 dark:focus:ring-white/10 dark:focus:border-zinc-500" placeholder="in" />
+                      <span class="text-[10px] text-muted dark:text-zinc-500 mt-0.5 block">in</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-muted dark:text-zinc-400 mb-1.5">Depth</label>
+                <div class="flex gap-2 items-end">
+                  <input type="number" min="0" step="0.001" x-model.number="depthIn" class="flex-1 rounded-xl border border-line bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900/10 focus:border-zinc-400 dark:bg-zinc-950 dark:border-zinc-700 dark:text-zinc-100 dark:focus:ring-white/10 dark:focus:border-zinc-500" />
+                  <span class="text-sm text-muted dark:text-zinc-400 pb-2.5">inches</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Metric dimensions -->
+            <div x-show="unitSystem === 'metric'" x-cloak class="space-y-4">
+              <p class="text-[11px] text-muted dark:text-zinc-500 leading-relaxed -mt-1">Length and width are in <span class="font-medium text-zinc-700 dark:text-zinc-300">meters (m)</span>; depth is in <span class="font-medium text-zinc-700 dark:text-zinc-300">millimeters (mm)</span>.</p>
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-medium text-muted dark:text-zinc-400 mb-1.5">Length <span class="font-normal text-[10px] text-muted/90 dark:text-zinc-500">(meters)</span></label>
+                  <input type="number" min="0" step="0.01" x-model.number="lenM" class="w-full rounded-xl border border-line bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900/10 focus:border-zinc-400 dark:bg-zinc-950 dark:border-zinc-700 dark:text-zinc-100 dark:focus:ring-white/10 dark:focus:border-zinc-500" placeholder="0" />
+                  <span class="text-[10px] text-muted dark:text-zinc-500 mt-0.5 block">m</span>
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-muted dark:text-zinc-400 mb-1.5">Width <span class="font-normal text-[10px] text-muted/90 dark:text-zinc-500">(meters)</span></label>
+                  <input type="number" min="0" step="0.01" x-model.number="widM" class="w-full rounded-xl border border-line bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900/10 focus:border-zinc-400 dark:bg-zinc-950 dark:border-zinc-700 dark:text-zinc-100 dark:focus:ring-white/10 dark:focus:border-zinc-500" placeholder="0" />
+                  <span class="text-[10px] text-muted dark:text-zinc-500 mt-0.5 block">m</span>
+                </div>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-muted dark:text-zinc-400 mb-1.5">Depth <span class="font-normal text-[10px] text-muted/90 dark:text-zinc-500">(millimeters)</span></label>
+                <div class="flex gap-2 items-end">
+                  <input type="number" min="0" step="0.1" x-model.number="depthMm" class="flex-1 rounded-xl border border-line bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900/10 focus:border-zinc-400 dark:bg-zinc-950 dark:border-zinc-700 dark:text-zinc-100 dark:focus:ring-white/10 dark:focus:border-zinc-500" />
+                  <span class="text-sm text-muted dark:text-zinc-400 pb-2.5">mm</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="rounded-2xl border border-line/80 bg-zinc-50/80 p-4 dark:bg-zinc-800/50 dark:border-zinc-700">
+              <label class="flex items-start gap-3 cursor-pointer">
+                <input type="checkbox" x-model="includeWasteTen" class="mt-0.5 h-4 w-4 rounded border-line text-zinc-900 focus:ring-zinc-900/20 dark:border-zinc-600 dark:bg-zinc-900 dark:focus:ring-white/20" />
+                <span>
+                  <span class="text-sm font-medium text-ink dark:text-zinc-100">Include 10% extra for safety</span>
+                  <span class="block text-xs text-muted dark:text-zinc-400 mt-1">Accounts for stick-to-bucket loss, drips, and floor absorption. Recommended for most real-world pours.</span>
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Essential Supplies -->
+          <div class="rounded-3xl bg-white border border-line/70 shadow-sm p-6 sm:p-7 dark:bg-zinc-900 dark:border-zinc-800">
+            <h2 class="text-sm font-semibold tracking-tight flex items-center gap-2 mb-4 dark:text-zinc-100">
+              <i data-lucide="clipboard-check" class="w-4 h-4 text-muted dark:text-zinc-500"></i>
+              Essential Supplies
+            </h2>
+            <ul class="space-y-3">
+              <template x-for="item in supplies" :key="item.id">
+                <li class="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    :id="'sup-' + item.id"
+                    x-model="item.checked"
+                    class="h-4 w-4 rounded border-line text-zinc-900 focus:ring-zinc-900/20 dark:border-zinc-600 dark:bg-zinc-900 dark:focus:ring-white/20"
+                  />
+                  <label :for="'sup-' + item.id" class="text-sm cursor-pointer select-none flex-1 dark:text-zinc-200" x-text="item.label"></label>
+                  <i data-lucide="package" class="w-4 h-4 text-muted dark:text-zinc-500 shrink-0"></i>
+                </li>
+              </template>
+            </ul>
+          </div>
+        </section>
+
+        <!-- Right: Results + Visualizer -->
+        <section class="lg:col-span-7 space-y-6">
+          <div class="rounded-3xl bg-white border border-line/70 shadow-sm p-6 sm:p-8 space-y-6 dark:bg-zinc-900 dark:border-zinc-800">
+            <h2 class="text-sm font-semibold tracking-tight flex items-center gap-2 dark:text-zinc-100">
+              <i data-lucide="beaker" class="w-4 h-4 text-muted dark:text-zinc-500"></i>
+              Live results
+            </h2>
+
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="text-xs text-muted dark:text-zinc-400">Recommended mix ratio</span>
+              <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900" x-text="mixRatioLabel"></span>
+              <span class="text-xs text-muted dark:text-zinc-400" x-text="mixRatioNote"></span>
+            </div>
+
+            <p x-show="includeWasteTen" class="text-xs font-medium text-amber-800 dark:text-amber-200/90 bg-amber-50 dark:bg-amber-950/40 border border-amber-200/80 dark:border-amber-800/60 rounded-xl px-3 py-2">
+              Totals include +10% waste factor (1.10× net volume).
+            </p>
+
+            <div class="grid sm:grid-cols-3 gap-3">
+              <div class="rounded-2xl bg-gradient-to-b from-zinc-50 to-white border border-line/80 p-4 dark:from-zinc-800/80 dark:to-zinc-900 dark:border-zinc-700">
+                <div class="text-[10px] uppercase tracking-wider text-muted dark:text-zinc-500 font-medium mb-1">Volume (US gal)</div>
+                <div class="text-2xl font-semibold tracking-tight tabular-nums dark:text-white" x-text="formatNum(results.gallons, 3)"></div>
+              </div>
+              <div class="rounded-2xl bg-gradient-to-b from-zinc-50 to-white border border-line/80 p-4 dark:from-zinc-800/80 dark:to-zinc-900 dark:border-zinc-700">
+                <div class="text-[10px] uppercase tracking-wider text-muted dark:text-zinc-500 font-medium mb-1">Liters</div>
+                <div class="text-2xl font-semibold tracking-tight tabular-nums dark:text-white" x-text="formatNum(results.liters, 3)"></div>
+              </div>
+              <div class="rounded-2xl bg-gradient-to-b from-zinc-50 to-white border border-line/80 p-4 dark:from-zinc-800/80 dark:to-zinc-900 dark:border-zinc-700">
+                <div class="text-[10px] uppercase tracking-wider text-muted dark:text-zinc-500 font-medium mb-1">Est. mixed resin</div>
+                <div class="text-2xl font-semibold tracking-tight tabular-nums dark:text-white"><span x-text="formatNum(results.kg, 2)"></span> <span class="text-base font-medium text-muted dark:text-zinc-500">kg</span></div>
+                <div class="text-[10px] text-muted dark:text-zinc-500 mt-1">~1.15 kg/L typical blend</div>
+              </div>
+            </div>
+
+            <p class="text-xs text-muted dark:text-zinc-400 leading-relaxed">
+              Figures assume a rectangular volume (length × width × depth). For porous floors, you may need extra beyond this estimate. Always follow your manufacturer’s datasheet for ratio, pot life, and depth limits.
+            </p>
+          </div>
+
+          <!-- Visualizer -->
+          <div class="rounded-3xl bg-white border border-line/70 shadow-sm p-6 sm:p-8 dark:bg-zinc-900 dark:border-zinc-800">
+            <h2 class="text-sm font-semibold tracking-tight flex items-center gap-2 mb-4 dark:text-zinc-100">
+              <i data-lucide="maximize-2" class="w-4 h-4 text-muted dark:text-zinc-500"></i>
+              Area preview
+            </h2>
+            <div class="aspect-[16/10] max-h-72 w-full rounded-2xl bg-zinc-100 border border-line flex items-center justify-center p-6 sm:p-10 dark:bg-zinc-950 dark:border-zinc-800">
+              <svg
+                class="max-w-full max-h-full drop-shadow-sm"
+                viewBox="0 0 240 160"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                <defs>
+                  <linearGradient id="areaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" :style="'stop-color:' + viz.gradA + ';stop-opacity:1'" />
+                    <stop offset="100%" :style="'stop-color:' + viz.gradB + ';stop-opacity:1'" />
+                  </linearGradient>
+                </defs>
+                <rect x="4" y="4" width="232" height="152" rx="12" :fill="viz.frameFill" :stroke="viz.frameStroke" stroke-width="1" />
+                <rect
+                  :x="viz.rx"
+                  :y="viz.ry"
+                  :width="viz.rw"
+                  :height="viz.rh"
+                  rx="6"
+                  fill="url(#areaGrad)"
+                  :stroke="viz.innerStroke"
+                  stroke-width="1.25"
+                />
+              </svg>
+            </div>
+            <p class="text-xs text-muted dark:text-zinc-400 mt-3 text-center">
+              <span x-text="viz.caption"></span>
+            </p>
+          </div>
+
+          <!-- Recommended Supplies / affiliates -->
+          <div class="rounded-3xl bg-zinc-50 border border-line/70 p-5 sm:p-6 dark:bg-zinc-900/80 dark:border-zinc-800">
+            <h2 class="text-sm font-semibold tracking-tight flex items-center gap-2 mb-4 dark:text-zinc-100">
+              <i data-lucide="shopping-bag" class="w-4 h-4 text-muted dark:text-zinc-500"></i>
+              Recommended Supplies
+            </h2>
+            <div class="grid sm:grid-cols-2 gap-3">
+              <template x-for="card in affiliateProducts" :key="card.id">
+                <a
+                  :href="card.href"
+                  target="_blank"
+                  rel="noopener noreferrer sponsored"
+                  class="group flex h-full min-h-0 flex-col rounded-xl border border-line/90 bg-white p-3 shadow-sm transition-all hover:shadow-md hover:border-zinc-300 dark:bg-zinc-900 dark:border-zinc-700 dark:hover:border-zinc-500"
+                >
+                  <div class="flex gap-3 shrink-0">
+                    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300 border border-line/70 dark:border-zinc-600">
+                      <i class="w-[18px] h-[18px]" :data-lucide="card.icon"></i>
+                    </span>
+                    <div class="min-w-0 flex-1">
+                      <h3 class="text-[13px] font-semibold text-ink dark:text-zinc-100 leading-snug group-hover:text-zinc-700 dark:group-hover:text-white transition-colors" x-text="card.title"></h3>
+                      <p class="text-[10px] text-muted dark:text-zinc-500 mt-0.5 leading-snug line-clamp-2" x-text="card.blurb"></p>
+                    </div>
+                  </div>
+                  <div class="min-h-8 flex-1" aria-hidden="true"></div>
+                  <span class="inline-flex h-10 w-full shrink-0 items-center justify-center gap-1.5 rounded-lg bg-amber-500 px-2.5 text-[11px] font-semibold leading-none text-white transition-colors hover:bg-amber-600">
+                    View on Amazon
+                    <i data-lucide="external-link" class="h-3.5 w-3.5 shrink-0 opacity-90"></i>
+                  </span>
+                </a>
+              </template>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer class="border-t border-line/80 bg-white mt-auto dark:bg-zinc-950 dark:border-zinc-800">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 pt-4 pb-3 flex flex-col gap-3">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
+          <p class="text-[11px] sm:text-xs text-muted dark:text-zinc-500 text-center sm:text-left leading-relaxed sm:max-w-xl lg:max-w-2xl">
+            Calculations based on standard industry resin densities. Always double-check with your specific manufacturer’s data sheet.
+          </p>
+          <a
+            href="https://www.buymeacoffee.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex h-10 shrink-0 items-center justify-center gap-2 self-center rounded-full border border-amber-300/80 bg-[#FFDD00] px-5 text-sm font-semibold text-zinc-900 shadow-sm transition-colors hover:bg-[#ffcc00] sm:self-start"
+          >
+            <i data-lucide="coffee" class="h-4 w-4 shrink-0"></i>
+            <span class="leading-none">Buy Me a Coffee</span>
+          </a>
+        </div>
+        <p class="text-xs text-muted dark:text-zinc-400 text-center sm:text-left">© Easy Epoxy Calculator · For planning only — verify with product specs.</p>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    document.addEventListener('alpine:init', () => {
+      Alpine.data('epoxyEstimator', () => ({
+        darkMode: false,
+        includeWasteTen: true,
+        unitSystem: 'imperial',
+        projectType: 'river',
+        projectTypes: [
+          { id: 'river', label: 'River Table (Deep Pour)', hint: 'Thick pours — check max single-pour depth on your system.' },
+          { id: 'top', label: 'Table Top (Coat)', hint: 'Flood coats & thin build layers.' },
+          { id: 'floor', label: 'Garage Floor (Thin)', hint: 'Typical thin build / wear coat thickness.' },
+        ],
+        affiliateProducts: [
+          {
+            id: 'epoxy-kit',
+            icon: 'droplets',
+            title: 'TotalBoat High Performance Epoxy',
+            blurb: 'Versatile marine-style resin for coatings, repairs, and thin-to-mid builds.',
+            href: 'https://www.amazon.com/s?k=TotalBoat+High+Performance+Epoxy',
+          },
+          {
+            id: 'buckets',
+            icon: 'package',
+            title: 'Encore Plastics Mixing Pails (Multi-pack)',
+            blurb: 'Graduated buckets for accurate part A / part B measuring.',
+            href: 'https://www.amazon.com/s?k=graduated+mixing+bucket+epoxy',
+          },
+          {
+            id: 'heat-gun',
+            icon: 'flame',
+            title: 'SeekOne Compact Heat Gun',
+            blurb: 'Controlled heat for surface prep and bubble release on coatings.',
+            href: 'https://www.amazon.com/s?k=mini+heat+gun+epoxy',
+          },
+          {
+            id: 'spiked-shoes',
+            icon: 'footprints',
+            title: 'Bon Tool Spiked Sandals',
+            blurb: 'Walk wet floor coatings safely while keeping an even finish.',
+            href: 'https://www.amazon.com/s?k=spiked+shoes+epoxy+floor',
+          },
+        ],
+        lenFt: 4,
+        lenIn: 0,
+        widFt: 2,
+        widIn: 0,
+        depthIn: 1.5,
+        lenM: 1.22,
+        widM: 0.61,
+        depthMm: 38.1,
+        supplies: [
+          { id: 'buckets', label: 'Mixing buckets (marked volumes)', checked: false },
+          { id: 'sticks', label: 'Stir sticks / mixers', checked: false },
+          { id: 'heat', label: 'Heat gun (bubble release)', checked: false },
+          { id: 'shoes', label: 'Spiked shoes (floor work)', checked: false },
+        ],
+
+        init() {
+          const paintIcons = () => this.$nextTick(() => {
+            if (window.lucide) lucide.createIcons();
+          });
+          this.$watch('darkMode', (on) => {
+            document.documentElement.classList.toggle('dark', on);
+            try {
+              localStorage.setItem('eec-theme', on ? 'dark' : 'light');
+            } catch (e) {}
+            paintIcons();
+          });
+          const fromDoc = document.documentElement.classList.contains('dark');
+          if (fromDoc !== this.darkMode) this.darkMode = fromDoc;
+          paintIcons();
+          this.$watch('projectType', paintIcons);
+          this.$watch('unitSystem', paintIcons);
+        },
+
+        toggleDark() {
+          this.darkMode = !this.darkMode;
+        },
+
+        applyProjectDefaults() {
+          if (this.projectType === 'river') {
+            if (this.unitSystem === 'imperial') this.depthIn = 1.5;
+            else this.depthMm = 38.1;
+          } else if (this.projectType === 'top') {
+            if (this.unitSystem === 'imperial') this.depthIn = 0.125;
+            else this.depthMm = 3.175;
+          } else {
+            if (this.unitSystem === 'imperial') this.depthIn = 0.0625;
+            else this.depthMm = 1.588;
+          }
+        },
+
+        get lengthFeet() {
+          if (this.unitSystem === 'imperial') {
+            const ft = Number(this.lenFt) || 0;
+            const inch = Number(this.lenIn) || 0;
+            return ft + inch / 12;
+          }
+          const m = Number(this.lenM) || 0;
+          return m * 3.280839895;
+        },
+
+        get widthFeet() {
+          if (this.unitSystem === 'imperial') {
+            const ft = Number(this.widFt) || 0;
+            const inch = Number(this.widIn) || 0;
+            return ft + inch / 12;
+          }
+          const m = Number(this.widM) || 0;
+          return m * 3.280839895;
+        },
+
+        get depthFeet() {
+          if (this.unitSystem === 'imperial') {
+            const d = Number(this.depthIn) || 0;
+            return d / 12;
+          }
+          const mm = Number(this.depthMm) || 0;
+          return (mm / 1000) * 3.280839895;
+        },
+
+        get volumeCubicFeet() {
+          const L = Math.max(0, this.lengthFeet);
+          const W = Math.max(0, this.widthFeet);
+          const D = Math.max(0, this.depthFeet);
+          return L * W * D;
+        },
+
+        get wasteMultiplier() {
+          return this.includeWasteTen ? 1.1 : 1;
+        },
+
+        get results() {
+          const cf = this.volumeCubicFeet * this.wasteMultiplier;
+          const liters = cf * 28.316846592;
+          const gallons = liters / 3.785411784;
+          const kg = liters * 1.15;
+          return { gallons, liters, kg };
+        },
+
+        get mixRatioLabel() {
+          if (this.projectType === 'river') return '2 : 1';
+          if (this.projectType === 'top') return '1 : 1';
+          return '2 : 1';
+        },
+
+        get mixRatioNote() {
+          if (this.projectType === 'river') return 'Common deep-pour systems (resin : hardener)';
+          if (this.projectType === 'top') return 'Many tabletop formulas';
+          return 'Typical high-solids floor kits';
+        },
+
+        formatNum(n, decimals) {
+          if (!isFinite(n) || n < 0) return '—';
+          return n.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: decimals });
+        },
+
+        get viz() {
+          const L = Math.max(0.0001, this.lengthFeet);
+          const W = Math.max(0.0001, this.widthFeet);
+          const boxW = 232;
+          const boxH = 152;
+          const margin = 14;
+          const maxW = boxW - margin * 2;
+          const maxH = boxH - margin * 2;
+          const scale = Math.min(maxW / L, maxH / W);
+          const rw = L * scale;
+          const rh = W * scale;
+          const rx = 4 + margin + (maxW - rw) / 2;
+          const ry = 4 + margin + (maxH - rh) / 2;
+          const caption = `Top-down preview · length : width = ${this.formatNum(L / W, 2)} : 1`;
+          const dark = this.darkMode;
+          return {
+            rw,
+            rh,
+            rx,
+            ry,
+            caption,
+            gradA: dark ? '#27272a' : '#fafafa',
+            gradB: dark ? '#3f3f46' : '#e4e4e7',
+            frameFill: dark ? '#18181b' : '#ffffff',
+            frameStroke: dark ? '#3f3f46' : '#e4e4e7',
+            innerStroke: dark ? '#71717a' : '#a1a1aa',
+          };
+        },
+      }));
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.lucide) lucide.createIcons();
+    });
+  </script>
+</body>
+</html>
